@@ -1,27 +1,44 @@
-import React from 'react'
-import {View, Text, StyleSheet, TextInput} from 'react-native';
+import React, {useRef}from 'react'
+import {View, Text, StyleSheet, TextInput, ScrollView, Modal} from 'react-native';
 import { useContext, useState} from 'react';
 import { UserContext } from '../../contexts/userDataContext';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { MaterialIcons } from '@expo/vector-icons';
 import DisciplineBanner from '../../components/DisciplineBanner';
+import ModalToClose from '../../components/ModalToClose';
 
 export default function Disciplinas(){
     const {user} = useContext(UserContext);
     const [disciplinesArray, setDisciplineArray] = useState(user.disciplinas);
+    const [modalVisible, setModalVisible] = useState(false)
 
-    let disciplineList = disciplinesArray.map((item,index)=>(<DisciplineBanner data={item} key={index}>{item.nome}</DisciplineBanner>));
+    let disciplineList = disciplinesArray.map((item,index)=>(<DisciplineBanner showModal={setModalVisible} data={item} id={index} key={index}/>));
 
-    function addDiscipline({nome}){
+    const inputRef = useRef().current;
+
+    function addDiscipline(){
         let discItemManager = {
-            nome: nome,
+            nome: 'ola',
             rendimentoGeral: '',
             conteudo:[]
           }
         setDisciplineArray([...disciplinesArray,discItemManager])
     }
+
     return(
-        <View style={styles.container}>
+    <>
+    <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }}
+      >
+         <ModalToClose showModal={setModalVisible}/> 
+      </Modal>
+        <ScrollView style={styles.container} contentContainerStyle={{alignItems:'flex-end'}}>
             <View style={styles.listWrapper}>
                 {disciplineList}
             </View>
@@ -31,13 +48,13 @@ export default function Disciplinas(){
                 <MaterialIcons name="add-box" size={40} color="#B23333" />
                 </TouchableOpacity>
             </View>
-        </View>
+        </ScrollView>
+    </>
     )
 }
 
 const styles = StyleSheet.create({
     container:{
-        alignItems: 'flex-end',
         padding: 20
         
     },
@@ -47,8 +64,13 @@ const styles = StyleSheet.create({
     disciplineBanner:{
         borderBottomWidth: 2
     },
+    actionWrapper:{
+        flexDirection: 'row',
+        paddingHorizontal: 10
+    },
     inputDiscipline:{
-        backgroundColor: '#0404'
+        flex: 1,
+        borderBottomWidth: 2
     },
     addButton:{
        
